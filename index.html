@@ -9,15 +9,56 @@
     <h1>Hello World from AWS Amplify! </h1>
     <p>If you see this page, GitHub -> Amplify deployment works!</p>
 
+    <div id="inputContainer">
+        <input type="text" id="inputText" placeholder="Type something here...">
+        <button id="submitButton" onclick="displayText()">Submit it!</button>
+    </div>
+
+    <div id="displayText"></div>
+
     <div id="app">
-        <!-- <script src="https://unpkg.com/@aws-amplify/ui/dist/aws-amplify-ui.min.js"></script> -->
-        <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
-        <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+        <!-- <script src="https://unpkg.com/react@17/umd/react.development.js"></script> -->
+        <!-- <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script> -->
         <script>
-            ReactDOM.render(
-                React.createElement('h2', null, 'Hello from React!'),
-                document.getElementById('app')
-            );
+            // ReactDOM.render(
+            //     React.createElement('h2', null, 'Hello from React!'),
+            //     document.getElementById('app')
+            // );
+
+            async function displayText() {
+                const input = document.getElementById('inputText');
+                const display = document.getElementById('displayText');
+                const text = input.value;
+
+                if (!text) {
+                    display.textContent = "Please enter some text.";
+                    return;
+                }
+
+                display.textContent = "Submitting...";
+
+                try {
+                    const apiUrl = 'https://t0nms74k5c.execute-api.us-west-2.amazonaws.com/prod/submit-text'; // Replace with your API Gateway URL
+                    console.log('text', text);
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ text: text })
+                    });
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        display.textContent = `Submitted text. Case ID: ${result.id}`;
+                        input.value = '';
+                    }else {
+                        display.textContent = `Error: ${result.message || 'Unknown error'}`;
+                    }
+                } catch (error) {
+                    display.textContent = `Error: ${error.message}`;
+                }
+            }
         </script>
     </div>
 </body>
